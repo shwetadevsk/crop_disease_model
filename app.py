@@ -7,7 +7,7 @@ import tensorflow as tf
 from flask_cors import CORS
 
 # Path to your model
-model_path = '/Users/shweta/cropfitt/crop_disease_model.tflite'
+model_path = 'crop_disease_model.tflite'  # Ensure this file is present in your Render environment
 
 # Load TensorFlow Lite model
 try:
@@ -17,7 +17,7 @@ except Exception as e:
     print(f"Error loading model: {e}")
     interpreter = None
 
-# Load class indices (assuming you have this file)
+# Load class indices (ensure this file is uploaded to Render)
 class_indices_file = 'class_indices.json'
 
 if not os.path.exists(class_indices_file):
@@ -89,7 +89,7 @@ def predict():
         predicted_class = np.argmax(output_data, axis=1)
         predicted_label = class_labels.get(predicted_class[0], 'Unknown Class')
 
-        # Define the symptoms data
+       # Define the symptoms data
         symptoms_data = {
             "Pepper__bell___Bacterial_spot": [
                 "Dark, water-soaked spots on leaves.",
@@ -198,7 +198,6 @@ def predict():
             ]
         }
 
-
         # Get symptoms for the predicted label
         symptoms = symptoms_data.get(predicted_label, ["No symptoms available"])
 
@@ -212,7 +211,8 @@ def predict():
         print(f"Error processing image: {e}")
         return jsonify({'error': 'Failed to process image'}), 500
 
+
 if __name__ == '__main__':
-    from waitress import serve
-    print("Server is live at http://127.0.0.1:5001")
-    serve(app, host="0.0.0.0", port=5001)
+    print("Starting the server...")
+    port = int(os.environ.get("PORT", 5001))  # Use Render's provided PORT or default to 5000
+    app.run(host="0.0.0.0", port=port)
